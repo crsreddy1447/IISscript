@@ -1,0 +1,28 @@
+Try
+{
+    $GetWebServer = Get-WindowsFeature -Name Web-Server 
+    if($GetWebServer.installed -eq $true)
+    {
+        ($Status = Invoke-command -ScriptBlock {iisreset} -ErrorAction Stop -WarningAction SilentlyContinue )| out-null
+        If ($Status -contains "Internet services successfully restarted")
+        {
+            write-output "Successfully Restarted IIS Services"
+            exit 0
+        }
+        else
+        {
+            write-output "Unable to restart IISServices $($Error[0].Exception.Message)"
+            exit 1
+        }
+    }
+    else
+    {
+        Write-output "IIS Role not installed. First install IIS Role$($Error[0].Exception.Message)"
+        exit 1
+    }
+}
+catch
+{
+    write-output "Unable to Get IIS feature $($Error[0].Exception.Message)"
+    exit 1
+}
